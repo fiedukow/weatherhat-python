@@ -2,6 +2,7 @@
 import math
 import pathlib
 import time
+import socket
 
 import RPi.GPIO as GPIO
 import ST7789
@@ -114,6 +115,9 @@ class SensorView(View):
 
     def footer(self, label):
         self._draw.text((int(self.canvas_width / 2), self.canvas_height - 30), label, font=self.font_medium, fill=COLOR_GREY, anchor="mm")
+
+    def render_hostname(self):
+        self._draw.text((int(self.canvas_width / 2), self.canvas_height - 25), socket.gethostname().upper(), font=self.font_small, fill=COLOR_YELLOW, anchor="mm")
 
     def graph(self, values, graph_x=0, graph_y=0, width=None, height=None, vmin=0, vmax=1.0, bar_width=2, colors=None):
         if not len(values):
@@ -233,6 +237,7 @@ class MainView(SensorView):
     def render(self):
         SensorView.render(self)
         self.render_graphs()
+        self.render_hostname()
 
     def render_graphs(self, graph_mode=False):
         self.draw_info(0, 0, (20, 20, 220), "RAIN", self._data.rain_mm_sec.history(), "mm/s", vmax=self._settings.maximum_rain_mm, graph_mode=graph_mode)
