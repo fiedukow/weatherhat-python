@@ -1,24 +1,33 @@
 #!/bin/bash
 
+echo ">>>> Configuring Kernel <<<<"
+sudo raspi-config nonint do_i2c 0
+sudo raspi-config nonint do_spi 0
+
+echo ">>>> Upgrading raspberry pi os <<<<"
+sudo apt-get update -y
+sudo apt-get upgrade -y
+
+echo ">>>> Installing basic environment <<<<"
+sudo apt-get -y install git python3-pip vim libopenblas-dev python3-rpi-lgpio libopenjp2-7 screen
+
+echo ">>>> Configuring PIP <<<<"
 mkdir -p  ~/.config/pip/
 echo "[global]" > ~/.config/pip/pip.conf
 echo "break-system-packages = true" >> ~/.config/pip/pip.conf
 
-sudo raspi-config nonint do_i2c 0
-sudo raspi-config nonint do_spi 0
-
-sudo apt-get update -y
-sudo apt-get upgrade -y
-sudo apt-get -y install git python3-pip vim
-
-git clone https://github.com/pimoroni/weatherhat-python
+echo ">>>> Installing Weather HAT software <<<<"
+git clone https://github.com/fiedukow/weatherhat-python
 cd weatherhat-python
-yes | ./install.sh --unstable
+./install.sh --unstable --force
 
-pip3 install fonts font-manrope pyyaml adafruit-io numpy
+echo ">>>> Installing Weather HAT extra dependencies <<<<"
+pip3 install fonts font-manrope pyyaml adafruit-io numpy pillow
 sudo apt-get -y install libatlas-base-dev
 
 cd ..
+
+echo ">>>> Setting up rc.local <<<<"
 
 # Append yourself to the end of /etc/rc.local
 file_name="/etc/rc.local"
@@ -43,7 +52,6 @@ awk -v new_line="$new_line" -v before_line="$before_line" '
     { print }
 ' "$file_name" > modified_rc.local && sudo mv modified_rc.local "$file_name"
 
-
 # Reboot
-
+echo ">>>> Setup is ready. Now rebooting... <<<<"
 sudo reboot
