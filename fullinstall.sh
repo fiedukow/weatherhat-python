@@ -31,7 +31,7 @@ echo ">>>> Setting up rc.local <<<<"
 
 # Append yourself to the end of /etc/rc.local
 file_name="/etc/rc.local"
-new_line="sudo -u weather screen -d -m python3 /home/weather/weatherhat-python/examples/weather.py"
+new_line="cd /home/weather/ && sudo -u weather screen -d -m python3 /home/weather/weatherhat-python/examples/weather.py"
 before_line="exit 0"
 
 # Check if the file exists
@@ -50,7 +50,7 @@ awk -v new_line="$new_line" -v before_line="$before_line" '
         print new_line
     }
     { print }
-' "$file_name" > modified_rc.local && sudo mv modified_rc.local "$file_name"
+' "$file_name" > modified_rc.local && sudo cp --no-preserve=mode,ownership modified_rc.local "$file_name" && rm modified_rc.local
 
 # Reboot
 echo ">>>> Setup is ready. Now rebooting... <<<<"
